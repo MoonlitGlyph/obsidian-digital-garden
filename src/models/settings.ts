@@ -6,22 +6,26 @@ export const DEFAULT_SFTP_PRIVATE_KEY_PATH = "~/.ssh/id_ed25519";
 
 /** Saved to data.json, changing requires a migration */
 export default interface DigitalGardenSettings {
-	gitToken: string;
-	gitRepo: string;
-	gitUsername: string;
+	/** Upstream GitHub naming retained alongside the hosts provider settings. */
+	githubToken: string;
+	githubRepo: string;
+	githubUserName: string;
+	gitToken?: string;
+	gitRepo?: string;
+	gitUsername?: string;
 	/** REST API root, e.g. https://git.example.com/api/v1. */
 	forgejoApiUrl?: string;
 
 	// SFTP
-	sftpHost: string;
-	sftpPort: number;
-	sftpUsername: string;
-	sftpPassword: string;
-	sftpPrivateKeyPath: string;
-	sftpPrivateKeyPassphrase: string;
-	sftpRemoteRoot: string;
+	sftpHost?: string;
+	sftpPort?: number;
+	sftpUsername?: string;
+	sftpPassword?: string;
+	sftpPrivateKeyPath?: string;
+	sftpPrivateKeyPassphrase?: string;
+	sftpRemoteRoot?: string;
 	/** OpenSSH SHA256 fingerprint, for example SHA256:abc... */
-	sftpHostKeyFingerprint: string;
+	sftpHostKeyFingerprint?: string;
 
 	gardenBaseUrl: string;
 	prHistory: string[];
@@ -65,12 +69,12 @@ export default interface DigitalGardenSettings {
 	contentClassesKey: string;
 
 	publishPlatform: PublishPlatform;
-	publicationProvider: PublicationProvider;
-	gitProvider: GitProvider;
-	publishByDefault: boolean;
+	publicationProvider?: PublicationProvider;
+	gitProvider?: GitProvider;
+	publishByDefault?: boolean;
 	/** Vault-relative notes, assets, or folders ignored by publication. */
 	ignoredPaths: string[];
-	linkFormat: "markdown" | "wikilink";
+	linkFormat?: "markdown" | "wikilink";
 	forestrySettings: {
 		forestryPageName: string;
 		apiKey: string;
@@ -132,4 +136,5 @@ export default interface DigitalGardenSettings {
 	assetsDirectory?: string;
 	siteDirectory?: string;
 	settingsFilePath?: string;
+	contentBaseDir?: string;
 }

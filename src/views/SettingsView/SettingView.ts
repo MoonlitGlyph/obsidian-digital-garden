@@ -28,7 +28,7 @@ import {
 	SvgFileSuggest,
 } from "../../ui/suggest/file-suggest";
 import { addFilterInput } from "./addFilterInput";
-import { GithubSettings } from "./GithubSettings";
+import { GitSettings } from "./GitSettings";
 import RewriteSettings from "./RewriteSettings.svelte";
 import {
 	hasUpdates,
@@ -309,7 +309,7 @@ export default class SettingView {
 		target.empty();
 
 		if (this.settings.publishPlatform === PublishPlatform.SelfHosted) {
-			new GithubSettings(this, target);
+			new GitSettings(this, target);
 		} else {
 			mount(ForestrySettings, {
 				target,
@@ -1320,9 +1320,9 @@ export default class SettingView {
 					await PublishPlatformConnectionFactory.createPublishPlatformConnection(
 						this.settings,
 					);
-				const octokit = connection.octoKit;
-				const owner = connection.userName;
-				const repo = connection.pageName;
+				const octokit = connection.octoKit!;
+				const owner = connection.userName!;
+				const repo = connection.pageName!;
 
 				try {
 					await this.addFavicon(octokit, owner, repo);
@@ -2038,11 +2038,11 @@ export default class SettingView {
 					),
 				);
 
-			const defaultFavicon = await baseConnection.octoKit.request(
+			const defaultFavicon = await baseConnection.octoKit!.request(
 				"GET /repos/{owner}/{repo}/contents/{path}",
 				{
-					owner: baseConnection.userName,
-					repo: baseConnection.pageName,
+					owner: baseConnection.userName!,
+					repo: baseConnection.pageName!,
 					path: "src/site/favicon.svg",
 				},
 			);

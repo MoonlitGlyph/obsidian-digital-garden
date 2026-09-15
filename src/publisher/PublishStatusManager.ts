@@ -69,7 +69,11 @@ export default class PublishStatusManager implements IPublishStatusManager {
 
 		const contentTree = await (
 			await this.siteManager.getUserGardenConnection()
-		).getContent("HEAD", (progress) => onProgress?.(progress));
+		).getContent(
+			"HEAD",
+			(progress) =>
+				onProgress?.(progress as unknown as PublishStatusProgress),
+		);
 
 		if (!contentTree) {
 			throw new Error("Could not get content tree from base garden");

@@ -6,13 +6,48 @@ export const NOTE_PATH_BASE = "src/site/notes/";
 export const IMAGE_PATH_BASE = "src/site/img/user/";
 export const GARDEN_PLUGINS_PATH_BASE = "src/plugins/";
 
+export function normalizeContentBaseDir(base?: string): string {
+	const stripped = (base ?? "")
+		.trim()
+		.replace(/^\/+/, "")
+		.replace(/\/+$/, "");
+
+	if (
+		!stripped ||
+		stripped.split("/").some((part) => part === "." || part === "..")
+	) {
+		return "";
+	}
+
+	return `${stripped}/`;
+}
+
+export function contentBaseDir(
+	settings: Pick<DigitalGardenSettings, "contentBaseDir" | "publishPlatform">,
+): string {
+	if (
+		settings.publishPlatform !== undefined &&
+		settings.publishPlatform !== PublishPlatform.SelfHosted
+	) {
+		return "";
+	}
+
+	return normalizeContentBaseDir(settings.contentBaseDir);
+}
+
 type RepositoryPathSettings = Pick<
 	DigitalGardenSettings,
+	| "contentBaseDir"
 	| "publishPlatform"
 	| "notesDirectory"
 	| "assetsDirectory"
 	| "siteDirectory"
 	| "settingsFilePath"
+>;
+
+type ContentBaseSettings = Pick<
+	DigitalGardenSettings,
+	"contentBaseDir" | "publishPlatform"
 >;
 
 /** Normalize a safe repository-relative directory to exactly one trailing slash. */
@@ -52,7 +87,9 @@ function customDirectory(
 	if (settings.publishPlatform === PublishPlatform.ForestryMd)
 		return fallback;
 
-	return normalizeRepoDirectory(configured) || fallback;
+	return `${contentBaseDir(settings)}${
+		normalizeRepoDirectory(configured) || fallback
+	}`;
 }
 
 export function notePathBase(settings: RepositoryPathSettings): string {
@@ -83,7 +120,7 @@ export function envPath(settings: RepositoryPathSettings): string {
 		if (custom) return custom;
 	}
 
-	return ".env";
+	return `${contentBaseDir(settings)}.env`;
 }
 
 /** Repo path to the garden plugins directory, e.g. `src/plugins/` or `Web/src/plugins/`. */

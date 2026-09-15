@@ -38,6 +38,7 @@ export interface PublishBatchResult {
  * Prepares files to be published and publishes them to Github
  */
 export default class Publisher {
+	private cachedRemoteImageHashes: Record<string, string> | undefined;
 	vault: Vault;
 	metadataCache: MetadataCache;
 	compiler: GardenPageCompiler;
@@ -341,6 +342,8 @@ export default class Publisher {
 	}
 
 	private async getRemoteImageHashes(): Promise<Record<string, string>> {
+		if (this.cachedRemoteImageHashes) return this.cachedRemoteImageHashes;
+
 		const userGardenConnection = new RepositoryConnection(
 			await PublishPlatformConnectionFactory.createPublishPlatformConnection(
 				this.settings,
@@ -360,7 +363,18 @@ export default class Publisher {
 			this.settings,
 		);
 
-		return siteManager.getImageHashes(contentTree);
+		const hashes = await siteManager.getImageHashes(contentTree);
+		this.cachedRemoteImageHashes = hashes;
+
+		return hashes;
+	}
+
+	setRemoteImageHashes(hashes: Record<string, string>): void {
+		this.cachedRemoteImageHashes = hashes;
+	}
+
+	getCompilerFingerprint(): string {
+		return "publisher-v1";
 	}
 
 	private async uploadToGithub(
