@@ -210,15 +210,11 @@ All values are relative to the repository root. For example, `Web/content/articl
 
 ## Local development
 
-NOTE: this plugin contains a testing vault at `src/dg-testVault`, which is recommended for local development.
-
 1. Clone this repository
 2. (for best compatibility, use node version manager and run `nvm install && nvm use`)
 3. Install dependencies with `npm install`
 4. Run with `npm run dev`
-5. Open the vault from `src/dg-testVault` into obsidian
-
-6. (if you want to develop this plugin with another vault, move it into .obsidian/plugins of that vault)
+5. Reload the plugin in the vault containing this repository.
 
 To use the test vault with github, add your test repository values to a .env file with:
 
