@@ -1,10 +1,8 @@
-// @ts-nocheck
 import { debounce, getIcon, Setting } from "obsidian";
 import Logger from "js-logger";
 import DigitalGardenSettings from "src/models/settings";
 import { PublishPlatform } from "src/models/PublishPlatform";
 import PublishPlatformConnectionFactory from "src/repositoryConnection/PublishPlatformConnectionFactory";
-import { RepositoryConnection } from "src/repositoryConnection/RepositoryConnection";
 
 type ConnectionStatus = "loading" | "connected" | "error";
 
@@ -39,7 +37,7 @@ export class SftpSettings {
 			"SSH host",
 			"Hostname or IP address of the SSH server.",
 			"garden.example.com",
-			() => this.settings.sftpHost,
+			() => this.settings.sftpHost ?? "",
 			(value) => {
 				this.settings.sftpHost = value.trim();
 			},
@@ -65,7 +63,7 @@ export class SftpSettings {
 			"Username",
 			"",
 			"",
-			() => this.settings.sftpUsername,
+			() => this.settings.sftpUsername ?? "",
 			(value) => {
 				this.settings.sftpUsername = value;
 			},
@@ -76,7 +74,7 @@ export class SftpSettings {
 			"Private key path",
 			"Preferred authentication method. Supports ~/ paths.",
 			"~/.ssh/id_ed25519",
-			() => this.settings.sftpPrivateKeyPath,
+			() => this.settings.sftpPrivateKeyPath ?? "",
 			(value) => {
 				this.settings.sftpPrivateKeyPath = value;
 			},
@@ -86,7 +84,7 @@ export class SftpSettings {
 			target,
 			"Private key passphrase",
 			"",
-			() => this.settings.sftpPrivateKeyPassphrase,
+			() => this.settings.sftpPrivateKeyPassphrase ?? "",
 			(value) => {
 				this.settings.sftpPrivateKeyPassphrase = value;
 			},
@@ -96,7 +94,7 @@ export class SftpSettings {
 			target,
 			"Password",
 			"Used only when no private key path is configured.",
-			() => this.settings.sftpPassword,
+			() => this.settings.sftpPassword ?? "",
 			(value) => {
 				this.settings.sftpPassword = value;
 			},
@@ -107,7 +105,7 @@ export class SftpSettings {
 			"Remote garden folder",
 			"Absolute server path containing the garden source tree.",
 			"/var/www/digitalgarden",
-			() => this.settings.sftpRemoteRoot,
+			() => this.settings.sftpRemoteRoot ?? "",
 			(value) => {
 				this.settings.sftpRemoteRoot = value;
 			},
@@ -118,7 +116,7 @@ export class SftpSettings {
 			"Host key fingerprint",
 			"Optional OpenSSH SHA256 fingerprint. When set, connections reject a different server key.",
 			"SHA256:...",
-			() => this.settings.sftpHostKeyFingerprint,
+			() => this.settings.sftpHostKeyFingerprint ?? "",
 			(value) => {
 				this.settings.sftpHostKeyFingerprint = value.trim();
 			},
@@ -177,15 +175,15 @@ export class SftpSettings {
 		const checkId = ++this.connectionCheckId;
 
 		if (
-			!this.settings.sftpHost.trim() ||
-			!this.settings.sftpUsername.trim()
+			!(this.settings.sftpHost ?? "").trim() ||
+			!(this.settings.sftpUsername ?? "").trim()
 		) {
 			this.renderStatus("error", "Fill in host & username");
 
 			return;
 		}
 
-		if (!this.settings.sftpRemoteRoot.trim()) {
+		if (!(this.settings.sftpRemoteRoot ?? "").trim()) {
 			this.renderStatus("error", "Please fill in garden root");
 
 			return;
@@ -194,14 +192,13 @@ export class SftpSettings {
 		this.renderStatus("loading", "Checking connection...");
 
 		try {
-			const connection = new RepositoryConnection(
+			const connection =
 				PublishPlatformConnectionFactory.createPublishPlatformConnection(
 					{
 						...this.settings,
 						publishPlatform: PublishPlatform.Sftp,
 					},
-				),
-			);
+				);
 			await connection.getRepositoryInfo();
 
 			if (checkId !== this.connectionCheckId) return;
@@ -242,5 +239,3 @@ export class SftpSettings {
 		this.statusElement.className = `connection-status connection-status-${status}`;
 	}
 }
-// Provider-specific settings retain the hosts compatibility surface.
-// @ts-nocheck

@@ -1,12 +1,8 @@
-// @ts-nocheck
 import { Setting, TextComponent, debounce, getIcon } from "obsidian";
 import SettingView from "./SettingView";
 import { PublishPlatform } from "src/models/PublishPlatform";
 import PublishPlatformConnectionFactory from "src/repositoryConnection/PublishPlatformConnectionFactory";
-import {
-	RepositoryConnection,
-	type IRepositoryConnection,
-} from "src/repositoryConnection/RepositoryConnection";
+import type { IRepositoryConnection } from "src/repositoryConnection/RepositoryConnection";
 
 export class GitSettings {
 	settings: SettingView;
@@ -171,9 +167,12 @@ export class GitSettings {
 
 	updateConnectionStatus = async () => {
 		const checkId = ++this.connectionCheckId;
-		const githubToken = this.settings.settings.gitToken.trim();
-		const githubUserName = this.settings.settings.gitUsername.trim();
-		const githubRepo = this.settings.settings.gitRepo.trim();
+		const githubToken = (this.settings.settings.gitToken ?? "").trim();
+
+		const githubUserName = (
+			this.settings.settings.gitUsername ?? ""
+		).trim();
+		const githubRepo = (this.settings.settings.gitRepo ?? "").trim();
 
 		if (!githubToken || !githubUserName || !githubRepo) {
 			this.setConnectionError("Please fill in all required fields");
@@ -199,14 +198,13 @@ export class GitSettings {
 		}
 
 		try {
-			const connection = new RepositoryConnection(
+			const connection =
 				PublishPlatformConnectionFactory.createPublishPlatformConnection(
 					{
 						...this.settings.settings,
 						publishPlatform: this.platform,
 					},
-				),
-			);
+				);
 			const repository = await connection.getRepositoryInfo();
 
 			if (checkId !== this.connectionCheckId) return;
@@ -351,7 +349,7 @@ export class GitSettings {
 			.addText((text) =>
 				text
 					.setPlaceholder("mydigitalgarden")
-					.setValue(this.settings.settings.gitRepo)
+					.setValue(this.settings.settings.gitRepo ?? "")
 					.onChange(async (value) => {
 						this.settings.settings.gitRepo = value;
 						await this.checkConnectionAndSaveSettings();
@@ -366,7 +364,7 @@ export class GitSettings {
 			.addText((text) =>
 				text
 					.setPlaceholder("myusername")
-					.setValue(this.settings.settings.gitUsername)
+					.setValue(this.settings.settings.gitUsername ?? "")
 					.onChange(async (value) => {
 						this.settings.settings.gitUsername = value;
 						await this.checkConnectionAndSaveSettings();
@@ -394,7 +392,7 @@ export class GitSettings {
 			.addText((text) =>
 				text
 					.setPlaceholder("Secret Token")
-					.setValue(this.settings.settings.gitToken)
+					.setValue(this.settings.settings.gitToken ?? "")
 					.onChange(async (value) => {
 						this.settings.settings.gitToken = value;
 						await this.checkConnectionAndSaveSettings();
@@ -420,5 +418,3 @@ export class GitSettings {
 			});
 	}
 }
-// Provider-specific settings retain the hosts compatibility surface.
-// @ts-nocheck
