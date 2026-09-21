@@ -1,10 +1,7 @@
 import { MetadataCache, Notice, TFile, Vault } from "obsidian";
 import { Base64 } from "js-base64";
 import { getRewriteRules } from "../utils/utils";
-import {
-	hasPublishFlag,
-	isPublishFrontmatterValid,
-} from "../publishFile/Validator";
+import { hasPublishFlag } from "../publishFile/Validator";
 import DigitalGardenSiteManager, {
 	PathRewriteRules,
 } from "../repositoryConnection/DigitalGardenSiteManager";
@@ -68,7 +65,7 @@ export default class Publisher {
 
 		const frontMatter = this.metadataCache.getCache(file.path)?.frontmatter;
 
-		return hasPublishFlag(frontMatter);
+		return hasPublishFlag(frontMatter, this.settings.publishByDefault);
 	}
 
 	/**
@@ -87,7 +84,7 @@ export default class Publisher {
 			const canvasData = JSON.parse(content);
 			const frontMatter = canvasData?.metadata?.frontmatter;
 
-			return hasPublishFlag(frontMatter);
+			return hasPublishFlag(frontMatter, this.settings.publishByDefault);
 		} catch {
 			return false;
 		}
@@ -235,10 +232,7 @@ export default class Publisher {
 	}
 
 	public async publish(file: CompiledPublishFile): Promise<boolean> {
-		if (
-			this.isPathIgnored(file.file.path) ||
-			!isPublishFrontmatterValid(file.frontmatter)
-		) {
+		if (this.isPathIgnored(file.file.path)) {
 			return false;
 		}
 
@@ -306,9 +300,7 @@ export default class Publisher {
 		onProgress?: PublishProgressCallback,
 	): Promise<PublishBatchResult> {
 		const filesToPublish = files.filter(
-			(f) =>
-				!this.isPathIgnored(f.file.path) &&
-				isPublishFrontmatterValid(f.frontmatter),
+			(f) => !this.isPathIgnored(f.file.path),
 		);
 
 		if (filesToPublish.length === 0) {

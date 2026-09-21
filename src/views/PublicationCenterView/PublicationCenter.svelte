@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
 	import { getIcon, Notice } from "obsidian";
 	import Publisher from "../../publisher/Publisher";
 	import { LimitReachedError } from "../../forestry/LimitReachedError";
@@ -68,6 +68,7 @@
 	let diffCache = new Map<string, DiffData>();
 	let diffData: DiffData | null = null;
 	let diffLoading = false;
+	let diffPaneElement: HTMLDivElement;
 
 	$: activeFile = annotated.find((f) => f.path === activePath) ?? null;
 
@@ -141,6 +142,32 @@
 	// Used on first open and by the manual Refresh button.
 	function refresh() {
 		return loadStatus({ background: false });
+	}
+
+	async function fullRefresh() {
+		if (refreshing || publishing) return;
+
+		refreshing = true;
+		status = null;
+		error = null;
+		diffCache = new Map();
+		diffData = null;
+		diffLoading = false;
+		activePath = null;
+
+		try {
+			const connection =
+				(await siteManager.getUserGardenConnection()) as unknown as {
+					clearPublicationManifest?: () => Promise<void>;
+				};
+
+			await connection.clearPublicationManifest?.();
+			refreshing = false;
+			await loadStatus({ background: false });
+		} catch (e) {
+			error = String(e);
+			refreshing = false;
+		}
 	}
 
 	// Quiet, debounced refresh that keeps the tree visible and preserves the
@@ -357,6 +384,7 @@
 
 	async function selectFile(path: string) {
 		activePath = path;
+		diffPaneElement?.scrollTo({ top: 0, behavior: "auto" });
 		const file = annotated.find((f) => f.path === path);
 
 		if (!file) return;
@@ -375,6 +403,11 @@
 
 		// guard against the user having clicked away while loading
 		if (activePath === path) diffData = data;
+
+		if (activePath === path) {
+			await tick();
+			diffPaneElement?.scrollTo({ top: 0, behavior: "auto" });
+		}
 		diffLoading = false;
 	}
 
@@ -476,7 +509,7 @@
 						toggleSelection(e.detail.paths, e.detail.checked)}
 				/>
 			</div>
-			<div class="dg-pc-diff-pane">
+			<div class="dg-pc-diff-pane" bind:this={diffPaneElement}>
 				<DiffPane
 					path={activePath}
 					status={activeFile?.status ?? null}
@@ -493,9 +526,10 @@
 			{selectedCount}
 			{publishing}
 			{refreshing}
-			showFullRefresh={false}
+			showFullRefresh={true}
 			on:publish={publishSelected}
 			on:refresh={refresh}
+			on:fullrefresh={fullRefresh}
 		/>
 	{/if}
 </div>
@@ -505,6 +539,8 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+		min-height: 0;
+		overflow: hidden;
 	}
 
 	.dg-pc-layout {
@@ -516,6 +552,10 @@
 	.dg-pc-tree-pane {
 		flex: 0 0 33%;
 		max-width: 33%;
+		height: 100%;
+		max-height: 100%;
+		min-height: 0;
+		box-sizing: border-box;
 		overflow: auto;
 		border-right: 1px solid var(--background-modifier-border);
 		padding: 8px;

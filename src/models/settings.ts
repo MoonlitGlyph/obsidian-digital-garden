@@ -75,6 +75,7 @@ export default interface DigitalGardenSettings {
 	/** Vault-relative notes, assets, or folders ignored by publication. */
 	ignoredPaths: string[];
 	linkFormat?: "markdown" | "wikilink";
+	frontmatterFormat?: "json" | "yaml";
 	forestrySettings: {
 		forestryPageName: string;
 		apiKey: string;

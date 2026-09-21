@@ -23,9 +23,9 @@
 			class="dg-pc-full-refresh"
 			on:click={() => dispatch("fullrefresh")}
 			disabled={publishing || refreshing}
-			title="Rebuild the remote file manifest without recompiling notes"
+			title="Clear the cached remote manifest and rescan the remote files"
 		>
-			Rebuild Cache
+			Refresh remote
 		</button>
 	{/if}
 	<button

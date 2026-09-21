@@ -301,6 +301,23 @@ h4 {
 	height: 20px;
 }
 
+.dg-publication-center-view {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.dg-publication-center-view .dg-pc-provider-content {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	height: auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
 .dg-template-settings {
 	margin-bottom: 24px;
 }

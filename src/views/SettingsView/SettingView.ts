@@ -335,6 +335,22 @@ export default class SettingView {
 
 	private async initializeDefaultNoteSettings() {
 		new Setting(this.settingsRootElement)
+			.setName("Frontmatter format")
+			.setDesc("Format used for frontmatter in published notes.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("json", "JSON")
+					.addOption("yaml", "YAML")
+					.setValue(this.settings.frontmatterFormat ?? "json")
+					.onChange(async (value) => {
+						this.settings.frontmatterFormat = value as
+							| "json"
+							| "yaml";
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(this.settingsRootElement)
 			.setName("Internal link format")
 			.setDesc(
 				"Format used for internal note links in exported Markdown.",
