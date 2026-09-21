@@ -124,7 +124,9 @@ export default class SettingView {
 		});
 
 		// Placeholder for the template update section (rendered async, inserted at top)
-		this.updateSectionAnchor = this.settingsRootElement.createDiv();
+		this.updateSectionAnchor = this.settingsRootElement.createDiv({
+			cls: "dg-template-settings",
+		});
 
 		linkDiv.createEl("span", {
 			text: "Remember to read the setup guide if you haven't already. It can be found ",
