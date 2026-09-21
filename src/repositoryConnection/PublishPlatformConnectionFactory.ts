@@ -6,8 +6,6 @@ import { PublishPlatform } from "src/models/PublishPlatform";
 import DigitalGardenSettings from "src/models/settings";
 import { RepositoryConnection } from "./RepositoryConnection";
 import { ForgejoRepositoryConnection } from "./ForgejoRepositoryConnection";
-import { LocalFolderRepositoryConnection } from "./LocalFolderRepositoryConnection";
-import { SftpRepositoryConnection } from "./SftpRepositoryConnection";
 
 const oktokitLogger = Logger.get("octokit");
 
@@ -68,10 +66,24 @@ export default class PublishPlatformConnectionFactory {
 		}
 
 		if (settings.publishPlatform === PublishPlatform.LocalFolder) {
+			// These providers use Node builtins and are desktop-only. Keep them
+			// out of the plugin-load path so Obsidian mobile can start safely.
+			/* eslint-disable @typescript-eslint/no-var-requires -- intentional lazy load */
+			const {
+				LocalFolderRepositoryConnection,
+			} = require("./LocalFolderRepositoryConnection");
+
+			/* eslint-enable @typescript-eslint/no-var-requires */
 			return new LocalFolderRepositoryConnection(settings);
 		}
 
 		if (settings.publishPlatform === PublishPlatform.Sftp) {
+			/* eslint-disable @typescript-eslint/no-var-requires -- intentional lazy load */
+			const {
+				SftpRepositoryConnection,
+			} = require("./SftpRepositoryConnection");
+
+			/* eslint-enable @typescript-eslint/no-var-requires */
 			return new SftpRepositoryConnection(settings);
 		}
 
